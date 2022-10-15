@@ -97,7 +97,7 @@
                 <div   v-for="img in generated_images" :key="img" >
                     <center>
                         
-                        <ImageItem :app_state="app_state" :path="img" :style_obj="{ 'width': '75%' }"></ImageItem>
+                        <ImageItem :path="img" :style_obj="{ 'width': '75%' }"></ImageItem>
 
                     </center>
                     <br>
@@ -127,13 +127,11 @@ import ImageCanvas from '../components_bare/ImageCanvas.vue'
 
 import LoaderModal from '../components_bare/LoaderModal.vue'
 import Vue from 'vue'
+import store from '../store'
 
 export default {
     name: 'Img2Img',
-    props: {
-        app_state : Object   , 
-        stable_diffusion : Object,
-    },
+    props: {stable_diffusion: Object},
     components: {LoaderModal, ImageItem , ImageCanvas},
     mounted() {
 
@@ -153,6 +151,7 @@ export default {
     },
     data() {
         return {
+            store,
             prompt : '',
             inp_img : '',
             num_imgs:1,
@@ -217,15 +216,15 @@ export default {
                 on_img(img_path){
                     that.generated_images.push(img_path);
 
-                    if(!(that.app_state.history[history_key]))
-                        Vue.set(that.app_state.history, history_key , {
+                    if(!(store.history[history_key]))
+                        Vue.set(store.history, history_key , {
                             "prompt":that.prompt , "seed": seed, "key":history_key , "imgs" : [] , "inp_img": that.inp_img ,
                             "dif_steps" : that.dif_steps , "inp_img_strength" : that.inp_img_strength,
                         });
                     
-                    that.app_state.history[history_key].imgs.push(img_path)
+                    store.history[history_key].imgs.push(img_path)
 
-                    console.log(that.app_state.history)
+                    console.log(store.history)
 
                 },
                 on_progress(p, iter_time){

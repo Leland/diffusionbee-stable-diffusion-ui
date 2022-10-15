@@ -148,7 +148,7 @@
 
             <div v-if="generated_images.length == 1" >
                 <center>
-                    <ImageItem :app_state="app_state"  :path="generated_images[0]" :style_obj="{ 'width': 'calc(100vh - 380px )' , 'margin-top': '60px' }"></ImageItem>
+                    <ImageItem :path="generated_images[0]" :style_obj="{ 'width': 'calc(100vh - 380px )' , 'margin-top': '60px' }"></ImageItem>
                 </center>
             </div>
             
@@ -159,7 +159,7 @@
                     <b-col  v-for="img in generated_images" :key="img" style="margin-top:80px"  md="6" lg="4" xl="3"  >
                         <center>
                             
-                            <ImageItem :app_state="app_state"  :path="img" :style_obj="{'max-width' :'85%'}"></ImageItem>
+                            <ImageItem :path="img" :style_obj="{'max-width' :'85%'}"></ImageItem>
                         </center>
                     </b-col>
                         
@@ -198,19 +198,18 @@ import LoaderModal from '../components_bare/LoaderModal.vue'
 import Vue from 'vue'
 import ImageItem from '../components/ImageItem.vue'
 import {share_on_arthub} from '../utils.js'
+import store from '../store'
 
 export default {
     name: 'ImgGenerate',
-    props: {
-        app_state : Object   , 
-        stable_diffusion : Object,
-    },
+    props: {stable_diffusion : Object},
     components: {LoaderModal, ImageItem},
     mounted() {
        
     },
     data() {
         return {
+            store,
             img_w : 512, 
             img_h : 512 , 
             dif_steps : 25,
@@ -273,21 +272,21 @@ export default {
                 on_img(img_path){
                     that.generated_images.push(img_path);
 
-                    if(!(that.app_state.history[history_key])){
+                    if(!(store.history[history_key])){
                         let p = {
                             "prompt":that.prompt , "seed": seed, "img_w":that.img_w , "img_h":that.img_h ,  "key":history_key , "imgs" : [],
                             "guidence_scale" : that.guidence_scale , "dif_steps" : that.dif_steps 
                         }
                         if(that.is_negative_prompt_avail)
                             p['negative_prompt'] = that.negative_prompt;
-                        Vue.set(that.app_state.history, history_key , p);
+                        Vue.set(store.history, history_key , p);
                     }
                         
 
                     
-                    that.app_state.history[history_key].imgs.push(img_path)
+                    store.history[history_key].imgs.push(img_path)
 
-                    console.log(that.app_state.history)
+                    console.log(store.history)
 
                 },
                 on_progress(p, iter_time ){
@@ -322,7 +321,7 @@ export default {
         },
 
         share_current_arthub(){
-            this.app_state.global_loader_modal_msg = "Uploading";
+            store.global_loader_modal_msg = "Uploading";
             let params =  {
                 "Img Width": Number(this.img_w) , 
                 "Img Height" : Number(this.img_h) , 
@@ -335,9 +334,9 @@ export default {
 
             let that = this;
             share_on_arthub( that.generated_images , params , that.prompt).then((
-                function(){ that.app_state.global_loader_modal_msg = ""}
+                function(){ store.global_loader_modal_msg = ""}
             )).catch(
-                function(){alert("Error in uploading.") ; that.app_state.global_loader_modal_msg = ""}
+                function(){alert("Error in uploading.") ; store.global_loader_modal_msg = ""}
             )
         },
 

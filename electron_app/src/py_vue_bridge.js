@@ -1,41 +1,23 @@
-import Vue from 'vue'
+import Vue from 'vue';
 
-
-import {native_alert} from "./native_functions_vue_bridge.js"
-
-var app_component_object;
+import { native_alert } from "./native_functions_vue_bridge.js"
+import store from './store'
 
 function update_state(msg) {
+    let keys = msg.split("___U_P_D_A_T_E___")[0];
+    let value = msg.split("___U_P_D_A_T_E___")[1];
 
-    if (app_component_object) {
-        let keys = msg.split("___U_P_D_A_T_E___")[0];
-        let value = msg.split("___U_P_D_A_T_E___")[1];
+    keys = keys.split('.');
 
-        keys = keys.split('.');
+    let object_to_update = store;
 
-        let object_to_update = app_component_object.app_state;
-
-        for (let i = 0; i < keys.length - 1; i++) {
-            object_to_update = object_to_update[keys[i]];
-        }
-
-
-        let final_key = keys[keys.length - 1];
-        Vue.set(object_to_update, final_key, JSON.parse(value))
-
-
-    } else {
-        alert("Err : app stage object not set yet.")
+    for (let i = 0; i < keys.length - 1; i++) {
+        object_to_update = object_to_update[keys[i]];
     }
 
 
-}
-
-
-function bind_app_component(app_component) {
-    // this should be called by the main vue componnet, to set bind the "app state" object to the bridge 
-    app_component_object;
-    app_component_object = app_component;
+    let final_key = keys[keys.length - 1];
+    Vue.set(object_to_update, final_key, JSON.parse(value))
 }
 
 function on_msg_from_py(msg) {
@@ -46,8 +28,7 @@ function on_msg_from_py(msg) {
     }
     if (msg.substring(0, 4) == "sdbk") // update the state of 
     {
-        if(app_component_object)
-            app_component_object.stable_diffusion.state_msg(msg.substring(5))
+        store.stable_diffusion.state_msg(msg.substring(5))
     } else if (msg.substring(0, 4) == "alrt") // just alert  
     {
         native_alert(msg.substring(5));
@@ -59,10 +40,7 @@ function on_msg_from_py(msg) {
 
 
 function add_log(msg) {
-    if (app_component_object) {
-        Vue.set(app_component_object.app_state, 'logs' , app_component_object.app_state.logs + "\n" + msg );
-    }
-    
+    Vue.set(store, 'logs', store.logs + "\n" + msg);
 }
 
 
@@ -94,4 +72,4 @@ function send_to_py_async() {
 
 
 
-export { send_to_py, bind_app_component, send_to_py_async }
+export { send_to_py, send_to_py_async }

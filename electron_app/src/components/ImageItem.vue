@@ -24,6 +24,7 @@
 </template>
 <script>
 
+import store from "../store";
 import {open_popup} from "../utils"
 
 export default {
@@ -31,7 +32,6 @@ export default {
     props: {
         path : String,
         style_obj:Object,
-        app_state:Object,
         hide_extra_save_button : Boolean,
         hide_dropdown : Boolean,
     },
@@ -40,7 +40,7 @@ export default {
 
     },
     data() {
-        return {};
+        return {store};
     },
     methods: {
         open_image_popup(img){
@@ -59,19 +59,19 @@ export default {
         },
 
         send_img2img(){
-            if(this.app_state){
+            if(store){
 
-                if(this.app_state.app_object.$refs.stable_diffusion.is_input_avail){
-                    this.app_state.app_object.$refs.img2img.inp_img = this.path;
-                     this.app_state.app_object.$refs.app_frame.selected_tab = 'img2img';
+                if(store.app_object.$refs.stable_diffusion.is_input_avail){
+                    store.app_object.$refs.img2img.inp_img = this.path;
+                     store.app_object.$refs.app_frame.selected_tab = 'img2img';
                 } 
             }
         } , 
 
         upsclae(){
-            if(this.app_state){
-                this.app_state.app_object.$refs.app_frame.selected_tab = 'upscale_img';
-                this.app_state.app_object.$refs.upscale_img.do_upscale(this.path);
+            if(store){
+                store.app_object.$refs.app_frame.selected_tab = 'upscale_img';
+                store.app_object.$refs.upscale_img.do_upscale(this.path);
                 
             }
             
